@@ -1,3 +1,4 @@
+import os
 from typing import List, Tuple, Callable
 
 import pandas as pd
@@ -108,11 +109,13 @@ def gen_real_signal(file_name: str = 'cardio', data_attribute: str = 'heartRate'
 
 def write_csv(path: str, values: List[float]) -> None:
     """
-    Auxiliar function used to write a list of values in a specific path.
+    Auxiliary function used to write a list of values in a specific path.
     :param path: Path where we want to write the values.
     :param values: Values we want to write.
     :return: Nothing.
     """
+    directory = '/'.join(path.split('/')[:-1])
+    os.makedirs(directory, exist_ok=True)
     with open(path, 'w') as file_to_write:
         file_to_write.write(','.join(list(map(str, values))) + '\n')
 
