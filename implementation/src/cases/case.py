@@ -10,7 +10,7 @@ from utils.constants import Constants
 class Case:
     """
     This represents an input where existent changepoints
-    are not known and are yet to be estimated
+    are not known and are yet to be estimated.
     """
     size: int = 0
     name: str = ''
