@@ -10,7 +10,7 @@ class Kernel:
     Auxiliary kernel function used to measure similarity among two
     different values.
     """
-    bandwith: float = Constants.kernel_bandwith
+    bandwith: float = Constants.kernel_bandwidth
     name: str = 'general_kernel'
 
     def similarity(self, x: float, y: float) -> float:
