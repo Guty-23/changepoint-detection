@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
+from cost_functions.kernels import Kernel, LaplaceKernel
 from utils.aux import accumulate
 
 
@@ -9,12 +10,13 @@ class CostFunction:
     A function that associates a cost to a
     given range in the signal.
     """
+    name: str = 'general_cost_function'
 
-    def range_cost(self, i: int, j: int) -> float:
+    def range_cost(self, start: int, end: int) -> float:
         """
-        Cost associated to [i,j).
-        :param i: begin of the range (inclusive).
-        :param j: end of the range (exclusive).
+        Cost associated to [start, end).
+        :param start: begin of the range (inclusive).
+        :param end: end of the range (exclusive).
         :return: real value with the associated cost to the range.
         """
 
@@ -27,9 +29,10 @@ class CostFunction:
         """
 
 
-@dataclass(order=True)
+@dataclass
 class GaussianCostFunction(CostFunction):
     """ Gaussian cost function. """
+    name: str = 'gaussian'
     prefix_sum: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
     prefix_sum_squares: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
 
@@ -42,3 +45,35 @@ class GaussianCostFunction(CostFunction):
         linear_sum_term = (inv_length ** 2) * ((self.prefix_sum[end] - self.prefix_sum[start]) ** 2)
         square_sum_term = inv_length * (self.prefix_sum_squares[end] - self.prefix_sum_squares[start])
         return square_sum_term - linear_sum_term
+
+
+@dataclass
+class KernelBasedCostFunction(CostFunction):
+    """Kernel based cost function. """
+    kernel: Kernel = LaplaceKernel()
+    name: str = kernel.name
+    prefix_sum_1d: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
+    prefix_sum_2d: List[List[float]] = field(default_factory=list, compare=False, hash=False, repr=False)
+
+    def set_kernel(self, kernel: Kernel) -> None:
+        self.kernel = kernel
+        self.name = kernel.name
+
+    def sum_submatrix(self, start: int, end: int):
+        return self.prefix_sum_2d[end][end] - \
+               self.prefix_sum_2d[start][end] - \
+               self.prefix_sum_2d[end][start] + \
+               self.prefix_sum_2d[start][start]
+
+    def precompute(self, signal: List[int]) -> None:
+        self.prefix_sum_1d = accumulate([self.kernel.similarity(x, x) for x in signal])
+        self.prefix_sum_2d = [[0.0] + [self.kernel.similarity(x, y) for y in signal] for x in signal]
+        for i in range(len(signal)):
+            for j in range(len(signal)):
+                self.prefix_sum_2d[i + 1][j + 1] += self.prefix_sum_2d[i][j + 1] + \
+                                                    self.prefix_sum_2d[i + 1][j] - \
+                                                    self.prefix_sum_2d[i][j]
+
+    def range_cost(self, start: int, end: int) -> float:
+        return (self.prefix_sum_1d[end] - self.prefix_sum_1d[start]) - \
+               (1.0 / float(end - start) * self.sum_submatrix(start, end))

@@ -9,6 +9,7 @@ class Kernel:
     different values.
     """
     bandwith: float = 1e-3
+    name: str = 'general_kernel'
 
     def similarity(self, x: float, y: float) -> float:
         """
@@ -23,6 +24,7 @@ class Kernel:
 
 class GaussianKernel(Kernel):
     """ Gaussian Kernel. """
+    name: str = 'gaussian_kernel'
 
     def similarity(self, x: float, y: float) -> float:
         return math.exp(-(abs(x - y) ** 2) / (2 * (self.bandwith ** 2)))
@@ -30,6 +32,7 @@ class GaussianKernel(Kernel):
 
 class LaplaceKernel(Kernel):
     """ Laplace Kernel. """
+    name: str = 'laplace_kernel'
 
     def similarity(self, x: float, y: float) -> float:
-        return math.exp(-abs(x - y) / (2 * (self.bandwith ** 2)))
+        return math.exp(-abs(x - y) / self.bandwith)
