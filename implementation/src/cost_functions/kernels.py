@@ -1,6 +1,8 @@
 import math
 from dataclasses import dataclass
 
+from utils.constants import Constants
+
 
 @dataclass
 class Kernel:
@@ -8,7 +10,7 @@ class Kernel:
     Auxiliary kernel function used to measure similarity among two
     different values.
     """
-    bandwith: float = 1e-3
+    bandwith: float = Constants.kernel_bandwidth
     name: str = 'general_kernel'
 
     def similarity(self, x: float, y: float) -> float:
