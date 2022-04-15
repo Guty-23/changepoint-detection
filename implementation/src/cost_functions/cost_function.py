@@ -2,7 +2,8 @@ from dataclasses import dataclass, field
 from typing import List
 
 from cost_functions.kernels import Kernel, LaplaceKernel
-from utils.aux import accumulate
+from utils.aux import accumulate, range_sum
+from utils.constants import Constants
 
 
 class CostFunction:
@@ -42,9 +43,23 @@ class GaussianCostFunction(CostFunction):
 
     def range_cost(self, start: int, end: int) -> float:
         inv_length = 1.0 / float(end - start)
-        linear_sum_term = (inv_length ** 2) * ((self.prefix_sum[end] - self.prefix_sum[start]) ** 2)
-        square_sum_term = inv_length * (self.prefix_sum_squares[end] - self.prefix_sum_squares[start])
+        linear_sum_term = (inv_length ** 2) * (range_sum(self.prefix_sum, start, end) ** 2)
+        square_sum_term = inv_length * range_sum(self.prefix_sum_squares, start, end)
         return square_sum_term - linear_sum_term
+
+
+@dataclass
+class ExponentialCostFunction(CostFunction):
+    """ Exponential distribution cost function. """
+    name: str = 'exponential'
+    prefix_sum: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
+
+    def precompute(self, signal: List[int]) -> None:
+        self.prefix_sum = accumulate(signal)
+
+    def range_cost(self, start: int, end: int) -> float:
+        range_value = max(range_sum(self.prefix_sum, start, end), Constants.epsilon)
+        return float(end - start) / range_value
 
 
 @dataclass
