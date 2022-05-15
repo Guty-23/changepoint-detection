@@ -177,7 +177,8 @@ def main() -> None:
         max_start_point = len(complete_real_signal) - real_signal_sample_length
         start = rng.randint(0, max_start_point)
         signal = complete_real_signal[start:(start + real_signal_sample_length)]
-        write_csv(''.join([Constants.real_path, case_number, '_', 'real', '.in']), signal, metadata_real_signal)
+        metadata = metadata_real_signal[start:(start + real_signal_sample_length)]
+        write_csv(''.join([Constants.real_path, case_number, '_', 'real', '.in']), signal, metadata)
 
 
 if __name__ == '__main__':
