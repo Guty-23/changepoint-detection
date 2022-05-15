@@ -1,3 +1,4 @@
+import datetime
 import os
 from typing import List, Tuple, Callable
 
@@ -96,18 +97,21 @@ def gen_signal(case_type: str) -> Callable[[CaseParameters], Tuple[List[float], 
             'dependant': gen_signal_dependant}[case_type]
 
 
-def gen_real_signal(file_name: str = 'cardio', data_attribute: str = 'heartRate') -> List[float]:
+def gen_real_signal(file_name: str = 'cardio', data_attribute: str = 'heartRate') -> Tuple[List[float], List[str]]:
     """
     It generates a real signal of all the stored values that we have, in order to be able to segment that later.
     :param file_name: File name where the table with values are stored.
     :param data_attribute: Column with the specific values that we want.
-    :return: A list with the values retrieved in cronological order.
+    :return: A pair of lists with the values retrieved in cronological order and its associated metadata.
     """
     csv_file = pd.read_csv(''.join([Constants.project_root_path, 'resources/data/', file_name, '.csv']))
-    return [x for x in csv_file[data_attribute]]
+    dates = [str(date_str) for date_str in csv_file['date']]
+    times = [str(time_str) for time_str in csv_file['time']]
+    return [float(attribute) for attribute in csv_file[data_attribute]], \
+           [date + ' ' + time for date, time in zip(dates, times)]
 
 
-def write_csv(path: str, values: List[float]) -> None:
+def write_csv(path: str, values: List[float], metadata_values: List[str] = None) -> None:
     """
     Auxiliary function used to write a list of values in a specific path.
     :param path: Path where we want to write the values.
@@ -118,6 +122,8 @@ def write_csv(path: str, values: List[float]) -> None:
     os.makedirs(directory, exist_ok=True)
     with open(path, 'w') as file_to_write:
         file_to_write.write(','.join(list(map(str, values))) + '\n')
+        if metadata_values:
+            file_to_write.write(','.join(metadata_values) + '\n')
 
 
 def write_to_path(case_number: str, case_type: str, folder: str, extension: str, values: List[float]) -> None:
@@ -150,7 +156,7 @@ def write_random_case(case_number: str, case_type: str, signal: List[float], cha
 def main() -> None:
     rng = np.random.RandomState(Constants.seed)
     case_sizes = [Constants.batch_size * (i + 1) for i in range(Constants.cases_per_type)]
-    complete_real_signal = gen_real_signal('cardio', 'heartRate')
+    complete_real_signal, metadata_real_signal = gen_real_signal('cardio', 'heartRate')
     for k, case_size in enumerate(case_sizes):
         case_number = str(k).zfill(2)
 
@@ -171,7 +177,8 @@ def main() -> None:
         max_start_point = len(complete_real_signal) - real_signal_sample_length
         start = rng.randint(0, max_start_point)
         signal = complete_real_signal[start:(start + real_signal_sample_length)]
-        write_csv(''.join([Constants.real_path, case_number, '_', 'real', '.in']), signal)
+        metadata = metadata_real_signal[start:(start + real_signal_sample_length)]
+        write_csv(''.join([Constants.real_path, case_number, '_', 'real', '.in']), signal, metadata)
 
 
 if __name__ == '__main__':

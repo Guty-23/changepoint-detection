@@ -20,3 +20,4 @@ class Constants:
     project_root_path: str = os.path.dirname(os.path.abspath(__file__)) + '/../../'
     random_path: str = project_root_path + 'resources/cases/random/'
     real_path: str = project_root_path + 'resources/cases/real/'
+    date_format: str = '%Y-%m-%d %H:%M'

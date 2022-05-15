@@ -1,9 +1,15 @@
+import datetime
 from dataclasses import dataclass, field
 from typing import List
 
 import numpy as np
 
 from utils.constants import Constants
+
+
+@dataclass(order=True, frozen=True)
+class ValueMetadata:
+    date: datetime.datetime = datetime.datetime(year=2022, month=1, day=1, minute=0, second=0)
 
 
 @dataclass(frozen=True, order=True)
@@ -15,6 +21,7 @@ class Case:
     size: int = 0
     name: str = ''
     signal: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
+    metadata: List[ValueMetadata] = field(default_factory=list, compare=False, hash=False, repr=False)
 
 
 @dataclass(order=True, frozen=True)
@@ -43,6 +50,5 @@ class CaseParameters:
     lambda_low: int = 1
     # Upper bound to be used in the uniform sample of a new mean for the Exponential distribution.
     lambda_high: int = 1
-
     # Fixed random number generator.
     rng: np.random.RandomState = np.random.RandomState(Constants.seed)
