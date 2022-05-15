@@ -1,30 +1,11 @@
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import Tuple, List
 
-from algorithms.algorithm_input import AlgorithmInput
-
-
-@dataclass
-class Solution:
-    """ Implements a solution to the problem
-    of finding changepoints on a given signal."""
-    algorithm_input: AlgorithmInput
-
-    def set_input(self, algorithm_input: AlgorithmInput) -> None:
-        self.algorithm_input = algorithm_input
-
-    def solve(self) -> Tuple[List[int], float]:
-        """
-        Finds changepoints to the given input.
-        :return: A tuple with a list with the indices in the signal where the changepoints are predicted, and the associated cost.
-        """
-
-    def cost(self, start: int, end: int) -> float:
-        return self.algorithm_input.cost_function.range_cost(start, end)
+from solution.solver import Solver
 
 
 @dataclass
-class BinarySegmentation(Solution):
+class BinarySegmentation(Solver):
     """ Implementation of greedy binary segmentation Algorithm,
     expected O(n log(n)) runtime, although it has an O(n^2) worst
     case time complexity."""
@@ -47,4 +28,4 @@ class BinarySegmentation(Solution):
 
     def solve(self) -> Tuple[List[int], float]:
         self.algorithm_input.initialize()
-        return self.solve_range(0, len(self.algorithm_input.signal), 0.0, [])
+        return self.solve_range(0, len(self.algorithm_input.case.signal), 0.0, [])

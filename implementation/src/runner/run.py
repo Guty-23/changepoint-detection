@@ -13,5 +13,3 @@ class Runner:
                 input_metadata = list(map(lambda date_str: ValueMetadata(datetime.strptime(date_str, Constants.date_format)),
                                           input_file.readline().split(',')))
         return Case(name=case_id, size=len(input_values), signal=input_values, metadata=input_metadata)
-
-
