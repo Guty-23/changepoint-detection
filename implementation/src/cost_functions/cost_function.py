@@ -21,9 +21,9 @@ class CostFunction:
         :return: real value with the associated cost to the range.
         """
 
-    def precompute(self, signal: List[int]) -> None:
+    def precompute(self, signal: List[float]) -> None:
         """
-        Performs any precomuptations needed to answer
+        Performs any pre-computations needed to answer
         range cost queries efficiently.
         :param signal: problem input signal.
         :return: None.
@@ -37,7 +37,7 @@ class GaussianCostFunction(CostFunction):
     prefix_sum: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
     prefix_sum_squares: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
 
-    def precompute(self, signal: List[int]) -> None:
+    def precompute(self, signal: List[float]) -> None:
         self.prefix_sum = accumulate(signal)
         self.prefix_sum_squares = accumulate(signal, lambda x: x ** 2)
 
@@ -54,7 +54,7 @@ class ExponentialCostFunction(CostFunction):
     name: str = 'exponential'
     prefix_sum: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
 
-    def precompute(self, signal: List[int]) -> None:
+    def precompute(self, signal: List[float]) -> None:
         self.prefix_sum = accumulate(signal)
 
     def range_cost(self, start: int, end: int) -> float:
@@ -80,7 +80,7 @@ class KernelBasedCostFunction(CostFunction):
                self.prefix_sum_2d[end][start] + \
                self.prefix_sum_2d[start][start]
 
-    def precompute(self, signal: List[int]) -> None:
+    def precompute(self, signal: List[float]) -> None:
         self.prefix_sum_1d = accumulate([self.kernel.similarity(x, x) for x in signal])
         self.prefix_sum_2d = [[0.0] + [self.kernel.similarity(x, y) for y in signal] for x in signal]
         for i in range(len(signal)):
