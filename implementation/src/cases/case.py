@@ -20,6 +20,7 @@ class Case:
     """
     size: int = 0
     name: str = ''
+    case_type: str = ''
     signal: List[float] = field(default_factory=list, compare=False, hash=False, repr=False)
     metadata: List[ValueMetadata] = field(default_factory=list, compare=False, hash=False, repr=False)
 

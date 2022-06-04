@@ -8,6 +8,7 @@ from solution.algorithm_input import AlgorithmInput
 class Solver:
     """ Implements a solution to the problem
     of finding changepoints on a given signal."""
+    name: str
     algorithm_input: AlgorithmInput
 
     def set_input(self, algorithm_input: AlgorithmInput) -> None:

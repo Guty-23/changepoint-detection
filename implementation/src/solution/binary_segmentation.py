@@ -9,6 +9,7 @@ class BinarySegmentation(Solver):
     """ Implementation of greedy binary segmentation Algorithm,
     expected O(n log(n)) runtime, although it has an O(n^2) worst
     case time complexity."""
+    name: str = 'binary_segmentation'
 
     def split_cost(self, start: int, split_position: int, end: int) -> float:
         return self.cost(start, split_position) + \
