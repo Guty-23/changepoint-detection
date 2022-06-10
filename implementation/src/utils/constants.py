@@ -22,3 +22,4 @@ class Constants:
     real_path: str = project_root_path + 'resources/cases/real/'
     output_path: str = project_root_path + 'output/cases/'
     date_format: str = '%Y-%m-%d %H:%M'
+    metrics_columns: str = ('name', 'size', 'cost_function', 'solver', 'changepoints', 'cost')

@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import List
+from typing import List, TextIO
 
 from cases.case import Case, ValueMetadata
 from cost_functions.cost_function import CostFunction
@@ -8,6 +8,16 @@ from process.penalization_selector import select_penalization
 from solution.algorithm_input import AlgorithmInput
 from solution.solver import Solver
 from utils.constants import Constants
+
+
+def write_metrics(algorithm_input: AlgorithmInput, solver: Solver, metrics_file: TextIO, amount_changepoitns: int, total_cost: float):
+    metrics_file.write(','.join(map(str, [
+        algorithm_input.case.name,
+        algorithm_input.case.size,
+        algorithm_input.cost_function.name,
+        solver.name,
+        amount_changepoints,
+        total_cost])))
 
 
 class Runner:
@@ -28,13 +38,13 @@ class Runner:
                 cost_function=cost_function,
                 penalization=penalization,
                 max_amount_changepoints=max_amount_changepoints)
-            for solver in solvers:
-                solver.set_input(algorithm_input)
-                changepoints, total_cost = solver.solve()
-                path = Constants.output_path + algorithm_input.case.case_type
-                os.makedirs(path, exist_ok=True)
-                with open(path + '/' + algorithm_input.case.name + '.out') as output_file:
-                    output_file.write(','.join(list(map(str, changepoints))) + '\n')
-                columns = ['name', 'size', 'cost_function', 'solver']
-                with open(path + '/' + algorithm_input.case.name + '.metrics') as metrics_file:
-                    metrics_file.write()
+            path = Constants.output_path + algorithm_input.case.case_type + '/' + algorithm_input.case.name
+            os.makedirs(path, exist_ok=True)
+            with open(path + '.metrics', 'w') as metrics_file:
+                metrics_file.write(','.join(list(Constants.metrics_columns)) + '\n')
+                for solver in solvers:
+                    solver.set_input(algorithm_input)
+                    changepoints, total_cost = solver.solve()
+                    write_metrics(algorithm_input, solver, metrics_file, len(changepoints), total_cost)
+                    with open(path + '.out', 'w') as output_file:
+                        output_file.write(','.join(list(map(str, changepoints))) + '\n')
