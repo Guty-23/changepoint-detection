@@ -10,7 +10,7 @@ def accumulate(signal: List[float], mapping: Callable = lambda x: x) -> List[flo
     :param mapping: function to be applied to each signal value.
     :return: accumulated signal.
     """
-    return [float(x) for x in np.insert(np.cumsum(map(mapping, signal)), 0, 0)]
+    return [float(x) for x in np.insert(np.cumsum(list(map(mapping, signal))), 0, 0)]
 
 
 def range_sum(accumulated_signal: List[float], start: int, end: int) -> float:

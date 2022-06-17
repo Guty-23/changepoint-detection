@@ -9,6 +9,8 @@ class Solver:
     """ Implements a solution to the problem
     of finding changepoints on a given signal."""
     algorithm_input: AlgorithmInput
+    name: str
+
 
     def set_input(self, algorithm_input: AlgorithmInput) -> None:
         self.algorithm_input = algorithm_input

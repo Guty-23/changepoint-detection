@@ -82,7 +82,9 @@ class KernelBasedCostFunction(CostFunction):
 
     def precompute(self, signal: List[float]) -> None:
         self.prefix_sum_1d = accumulate([self.kernel.similarity(x, x) for x in signal])
-        self.prefix_sum_2d = [[0.0] + [self.kernel.similarity(x, y) for y in signal] for x in signal]
+        self.prefix_sum_2d = [[0.0 for _ in range(len(signal) + 1)]] + \
+                             [[0.0] + [self.kernel.similarity(x, y) for y in signal] for x in signal]
+
         for i in range(len(signal)):
             for j in range(len(signal)):
                 self.prefix_sum_2d[i + 1][j + 1] += self.prefix_sum_2d[i][j + 1] + \
