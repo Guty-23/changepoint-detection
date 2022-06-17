@@ -5,7 +5,7 @@ from cost_functions.kernels import Kernel, LaplaceKernel
 from utils.aux import accumulate, range_sum
 from utils.constants import Constants
 
-
+@dataclass
 class CostFunction:
     """
     A function that associates a cost to a

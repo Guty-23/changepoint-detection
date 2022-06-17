@@ -24,6 +24,7 @@ def read_case(case_id: str, case_type: str = 'random') -> Case:
     case_path = Constants.real_path if case_type == 'real' else Constants.random_path
     with open(case_path + case_id + '.in') as input_file:
         input_values = list(map(float, input_file.readline().split(',')))
+        input_metadata = None
         if case_type == 'real':
             input_metadata = list(map(lambda date_str: ValueMetadata(datetime.strptime(date_str.strip(), Constants.date_format)),
                                       input_file.readline().split(',')))
@@ -38,13 +39,13 @@ def run_solution(solvers: List[Solver], cost_functions: List[CostFunction], case
             cost_function=cost_function,
             penalization=penalization,
             max_amount_changepoints=max_amount_changepoints)
-        path = Constants.output_path + algorithm_input.case.case_type + '/' + algorithm_input.case.name
+        path = Constants.output_path + algorithm_input.case.case_type + '/'
         os.makedirs(path, exist_ok=True)
-        with open(path + '.metrics', 'w') as metrics_file:
+        with open(path + algorithm_input.case.name + '.metrics', 'w') as metrics_file:
             metrics_file.write(','.join(list(Constants.metrics_columns)) + '\n')
             for solver in solvers:
                 solver.set_input(algorithm_input)
                 changepoints, total_cost = solver.solve()
                 write_metrics(algorithm_input, solver, metrics_file, len(changepoints), total_cost)
-                with open(path + '.out', 'w') as output_file:
-                    output_file.write(','.join(list(map(str, changepoints))) + '\n')
+                with open(path + algorithm_input.case.name + '.out', 'w') as output_file:
+                    output_file.write(','.join(list(map(str, sorted(changepoints)))) + '\n')
