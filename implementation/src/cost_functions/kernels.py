@@ -23,7 +23,7 @@ class Kernel:
         :return: real value that tries to capture how similar two values are.
         """
 
-
+@dataclass
 class GaussianKernel(Kernel):
     """ Gaussian Kernel. """
     name: str = 'gaussian_kernel'
@@ -31,7 +31,7 @@ class GaussianKernel(Kernel):
     def similarity(self, x: float, y: float) -> float:
         return math.exp(-(abs(x - y) ** 2) / (2 * (self.bandwith ** 2)))
 
-
+@dataclass
 class LaplaceKernel(Kernel):
     """ Laplace Kernel. """
     name: str = 'laplace_kernel'
