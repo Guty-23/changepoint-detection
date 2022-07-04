@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Union
 
 import numpy as np
 
@@ -9,7 +9,17 @@ from utils.constants import Constants
 
 @dataclass(order=True, frozen=True)
 class ValueMetadata:
+    """
+    Metadata that gives information about each data point.
+    """
+    index: int = 0
     date: datetime.datetime = datetime.datetime(year=2022, month=1, day=1, minute=0, second=0)
+
+    def field_from_label(self, label: str) -> Union[datetime.datetime, int]:
+        if label == 'date':
+            return self.date
+        else:
+            return self.index
 
 
 @dataclass(frozen=True, order=True)

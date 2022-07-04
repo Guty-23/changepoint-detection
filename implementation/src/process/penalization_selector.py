@@ -4,4 +4,13 @@ from cases.case import Case
 
 
 def select_penalization(case: Case) -> Tuple[float, int]:
-    return 5.0, 50
+    """
+    Selects reasonable penalization values and maximum amount of
+    changepoints for a given case.
+    :param case:
+    :return:
+    """
+    if case.case_type == 'real':
+        return 7.5, 50
+    else:
+        return 0.1, 50

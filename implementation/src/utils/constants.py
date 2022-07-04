@@ -1,3 +1,4 @@
+import datetime
 import os
 from dataclasses import dataclass
 
@@ -22,4 +23,5 @@ class Constants:
     real_path: str = project_root_path + 'resources/cases/real/'
     output_path: str = project_root_path + 'output/cases/'
     date_format: str = '%Y-%m-%d %H:%M'
+    no_date: datetime.datetime = datetime.datetime(year=1970, month=1, day=1)
     metrics_columns: str = ('name', 'size', 'cost_function', 'solver', 'changepoints', 'cost')
