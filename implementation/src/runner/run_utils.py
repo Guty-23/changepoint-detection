@@ -26,7 +26,7 @@ def write_metrics(algorithm_input: AlgorithmInput, solver: Solver, metrics_file:
 
 
 def read_case(case_id: str, case_type: str = 'random') -> Case:
-    case_path = Constants.real_path if case_type == 'real' else Constants.random_path
+    case_path = Constants.real_path if case_type == 'real' else Constants.random_path + 'generated/'
     with open(case_path + case_id + '.in') as input_file:
         input_values = list(map(float, input_file.readline().split(',')))
         if case_type == 'real':
