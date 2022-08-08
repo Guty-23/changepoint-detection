@@ -1,5 +1,5 @@
 from cases.case import Case
-from cost_functions.cost_function import CostFunction, KernelBasedCostFunction
+from cost_functions.cost_function import KernelBasedCostFunction, GaussianCostFunction
 from cost_functions.kernels import LaplaceKernel
 from runner.run_utils import read_case, run_solution
 from solution.algorithm_input import AlgorithmInput
@@ -8,9 +8,14 @@ from solution.solver import Solver
 
 
 def main():
-    case: Case = read_case('00_real', 'real')
-    cost_function: KernelBasedCostFunction = KernelBasedCostFunction()
-    cost_function.set_kernel(LaplaceKernel())
+    """
+    Runs a single case.
+    :return: None.
+    """
+    case: Case = read_case('00_mean', 'random')
+    cost_function: GaussianCostFunction = GaussianCostFunction()
+    # cost_function: KernelBasedCostFunction = KernelBasedCostFunction()
+    # cost_function.set_kernel(LaplaceKernel())
     solver: Solver = BinarySegmentation(algorithm_input=AlgorithmInput(case=case, cost_function=cost_function))
     run_solution([solver], [cost_function], case)
 
