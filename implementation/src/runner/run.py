@@ -4,7 +4,7 @@ from cost_functions.kernels import LaplaceKernel
 from runner.run_utils import read_case, run_solution
 from solution.algorithm_input import AlgorithmInput
 from solution.binary_segmentation import BinarySegmentation
-from solution.optimal_partition import OptimalPartition
+from solution.optimal_partition_penalization import OptimalPartition
 from solution.solver import Solver
 
 
