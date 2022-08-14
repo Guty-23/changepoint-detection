@@ -13,4 +13,4 @@ def select_penalization(case: Case) -> Tuple[float, int]:
     if case.case_type == 'real':
         return 7.5, 50
     else:
-        return 0.1, 50
+        return 0.1, 6
