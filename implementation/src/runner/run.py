@@ -18,14 +18,14 @@ def run_case(visualize_case: bool = False) -> None:
     """
     case: Case = read_case('00_mean', 'random')
 
-    cost_function: GaussianCostFunction = GaussianCostFunction()
-    # cost_function: KernelBasedCostFunction = KernelBasedCostFunction()
+    # cost_function: GaussianCostFunction = GaussianCostFunction()
+    cost_function: KernelBasedCostFunction = KernelBasedCostFunction()
 
     algorithm_input = AlgorithmInput(case=case, cost_function=cost_function).initialize()
 
-    solver: Solver = BinarySegmentation(algorithm_input=algorithm_input)
+    # solver: Solver = BinarySegmentation(algorithm_input=algorithm_input)
     # solver: Solver = OptimalPartition(algorithm_input=algorithm_input)
-    # solver: Solver = OptimalPartitionPruned(algorithm_input=algorithm_input)
+    solver: Solver = OptimalPartitionPruned(algorithm_input=algorithm_input)
 
     run_solution([solver], [cost_function], case)
     solution: Solution = read_output(case.name, case.case_type, solver.name)
