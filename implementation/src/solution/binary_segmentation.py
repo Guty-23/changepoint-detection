@@ -19,10 +19,9 @@ class BinarySegmentation(Solver):
                self.algorithm_input.penalization
 
     def solve_range(self, start: int, end: int, total_cost: float, changepoints: List[int]) -> Tuple[List[int], float]:
-        print(start, end, self.cost(start, end))
         if start + 2 < end:
-            candidate_cost, candidate = min([(self.split_cost(start, position, end), position) for position in range(start + 1, end - 1)])
-            print(candidate_cost)
+            candidate_cost, candidate = min([(self.split_cost(start, position, end), position)
+                                             for position in range(start + 1, end - 1)])
             if candidate_cost < self.cost(start, end):
                 changepoints_left, total_cost_left = self.solve_range(start, candidate, total_cost, changepoints)
                 changepoints_right, total_cost_right = self.solve_range(candidate + 1, end, total_cost, changepoints)
@@ -33,7 +32,5 @@ class BinarySegmentation(Solver):
         return changepoints, total_cost
 
     def solve(self) -> Solution:
-        self.algorithm_input.initialize()
         changepoints, cost = self.solve_range(0, len(self.algorithm_input.case.signal), 0.0, [])
         return Solution(changepoints, Metrics(cost, self.name))
-
