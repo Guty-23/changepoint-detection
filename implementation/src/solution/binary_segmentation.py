@@ -32,6 +32,5 @@ class BinarySegmentation(Solver):
         return changepoints, total_cost
 
     def solve(self) -> Solution:
-        self.algorithm_input.initialize()
         changepoints, cost = self.solve_range(0, len(self.algorithm_input.case.signal), 0.0, [])
         return Solution(changepoints, Metrics(cost, self.name))

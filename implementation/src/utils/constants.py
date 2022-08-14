@@ -16,7 +16,8 @@ class Constants:
     std_limit: int = 8
     min_days: int = 2
     minutes_in_a_day: int = 24 * 60
-    kernel_bandwidth: float = 1e-3
+    kernel_bandwidth: float = 1e3
+    window: int = 20
     epsilon: float = 1e-6
     project_root_path: str = os.path.dirname(os.path.abspath(__file__)) + '/../../'
     random_path: str = project_root_path + 'resources/cases/random/'

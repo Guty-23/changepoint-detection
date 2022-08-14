@@ -6,8 +6,8 @@ from solution.solution import Solution
 
 @dataclass
 class Solver:
-    """ Implements a solution to the problem
-    of finding changepoints on a given signal."""
+    """ Implements a solution to the problemof finding changepoints
+    on a given signal. The AlgorithmInput provided should have already been initialized."""
     algorithm_input: AlgorithmInput
     name: str
 
