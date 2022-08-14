@@ -42,6 +42,8 @@ class GaussianCostFunction(CostFunction):
         self.prefix_sum_squares = accumulate(signal, lambda x: x ** 2)
 
     def range_cost(self, start: int, end: int) -> float:
+        if start == end:
+            return Constants.infinity
         inv_length = 1.0 / float(end - start)
         linear_sum_term = (inv_length ** 2) * (range_sum(self.prefix_sum, start, end) ** 2)
         square_sum_term = inv_length * range_sum(self.prefix_sum_squares, start, end)
@@ -92,5 +94,5 @@ class KernelBasedCostFunction(CostFunction):
                                                     self.prefix_sum_2d[i][j]
 
     def range_cost(self, start: int, end: int) -> float:
-        return (self.prefix_sum_1d[end] - self.prefix_sum_1d[start]) - \
-               (1.0 / float(end - start) * self.sum_submatrix(start, end))
+        return Constants.infinity if start == end else \
+            (self.prefix_sum_1d[end] - self.prefix_sum_1d[start]) - (1.0 / float(end - start) * self.sum_submatrix(start, end))
