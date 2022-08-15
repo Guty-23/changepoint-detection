@@ -8,10 +8,10 @@ from utils.constants import Constants
 
 
 @dataclass
-class OptimalPartitionChangepointsInState(Solver):
+class DynamicProgrammingChangepointsInState(Solver):
     """ Implementation of Dynamic programming approach, it has
-    an O(Kn^2) worst case time complexity, where K is a bound to the amount of changepoints.
-    In the worst case in which K = O(n), we have O(n^3) complexity."""
+    an O(Dn^2) worst case time complexity, where D is a bound to the amount of changepoints.
+    In the worst case in which D = O(n), we have O(n^3) complexity."""
 
     name: str = 'optimal_partition_changepoints_in_state'
     best_prefix: List[List[float]] = field(default_factory=list, compare=False, hash=False, repr=False)

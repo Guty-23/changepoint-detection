@@ -3,11 +3,11 @@ from dataclasses import dataclass
 
 from metrics.metrics import Metrics
 from solution.solution import Solution
-from solution.optimal_partition_penalization import OptimalPartition
+from solution.optimal_partition_penalization import DynamicProgrammingPenalization
 
 
 @dataclass
-class OptimalPartitionPruned(OptimalPartition):
+class DynamicProgrammingPenalizationPruned(DynamicProgrammingPenalization):
     """ Implementation of Dynamic programming approach, it has
     an O(n^2) worst case time complexity, although it checks fewer
     candidates than the pure approach."""
@@ -16,7 +16,7 @@ class OptimalPartitionPruned(OptimalPartition):
     k_term: float = 0.0
 
     def initialize(self) -> set[int]:
-        super(OptimalPartitionPruned, self).initialize()
+        super(DynamicProgrammingPenalizationPruned, self).initialize()
         if 'kernel' not in self.algorithm_input.cost_function.name:
             self.k_term = - math.log(self.length)
         return {0}

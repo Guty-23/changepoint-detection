@@ -13,8 +13,3 @@ class AlgorithmInput:
 
     def initialize(self):
         self.cost_function.precompute(self.case.signal)
-
-
-
-
-

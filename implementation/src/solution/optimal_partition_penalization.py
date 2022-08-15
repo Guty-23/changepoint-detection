@@ -7,7 +7,7 @@ from solution.solver import Solver
 
 
 @dataclass
-class OptimalPartition(Solver):
+class DynamicProgrammingPenalization(Solver):
     """ Implementation of Dynamic programming approach, it has
     an O(n^2) worst case time complexity."""
 
