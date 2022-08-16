@@ -3,20 +3,21 @@ from dataclasses import dataclass
 
 from metrics.metrics import Metrics
 from solution.solution import Solution
-from solution.optimal_partition_changepoints_in_state import OptimalPartitionChangepointsInState
+from solution.optimal_partition_changepoints_in_state import DynamicProgrammingChangepointsInState
 
 
 @dataclass
-class OptimalPartitionChangepointsInStatePruned(OptimalPartitionChangepointsInState):
+class DynamicProgrammingChangepointsInStatePruned(DynamicProgrammingChangepointsInState):
     """ Implementation of Dynamic programming approach, it has
-    an O(Kn^2) worst case time complexity, where K is a bound to the amount of changepoints.
-    In the worst case in which K = O(n), we have O(n^3) complexity."""
+    an O(Dn^2) worst case time complexity, where D is a bound to the amount of changepoints.
+    In the worst case in which K = O(n), we have O(n^3) complexity. Although it checks fewer
+    candidates than the pure approach."""
 
     name: str = 'optimal_partition_changepoints_in_state_pruned'
     k_term: float = 0.0
 
     def initialize(self) -> None:
-        super(OptimalPartitionChangepointsInStatePruned, self).initialize()
+        super(DynamicProgrammingChangepointsInStatePruned, self).initialize()
         if 'kernel' not in self.algorithm_input.cost_function.name:
             self.k_term = - math.log(self.length)
 
