@@ -1,7 +1,7 @@
 import plotly.express as px
 import pandas as pd
 
-from cases.case import Case, ValueMetadata
+from cases.case import Case
 from solution.solution import Solution
 from utils.constants import Constants
 
@@ -24,7 +24,7 @@ def visualize(case: Case, solution: Solution) -> None:
     fig.show()
 
 
-def visualize_elbow(case: Case, solution: Solution) -> None:
+def visualize_elbow(case: Case, solution: Solution, guessed_checkpoints: int) -> None:
     """
     Visualizes a single case solution objective function for solutions
      with different amount of changepoints.
@@ -36,4 +36,5 @@ def visualize_elbow(case: Case, solution: Solution) -> None:
     df_rows = [[k + 1, solution.metrics.best_prefix[k][case.size]] for k in range(amount_changepoints)]
     df = pd.DataFrame(df_rows, columns=['changepoints', 'objective value'])
     fig = px.line(df, x='changepoints', y='objective value', title='Elbow - ' + solution.metrics.solver_used + ' - Case: ' + case.name)
+    fig.add_vline(guessed_checkpoints, line_width=3, line_color='red')
     fig.show()

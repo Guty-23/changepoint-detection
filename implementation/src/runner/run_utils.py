@@ -7,15 +7,14 @@ import pandas
 from cases.case import Case, ValueMetadata
 from cost_functions.cost_function import CostFunction
 from metrics.metrics import Metrics
-from process.penalization_selector import select_penalization
+from process.penalization_selector import ElbowPenalizationSelector
 from solution.algorithm_input import AlgorithmInput
 from solution.solution import Solution
 from solution.solver import Solver
 from utils.constants import Constants
 
 
-def write_metrics(algorithm_input: AlgorithmInput, solver: Solver, metrics_file: TextIO, amount_changepoints: int,
-                  solution_metrics: Metrics):
+def write_metrics(algorithm_input: AlgorithmInput, solver: Solver, metrics_file: TextIO, amount_changepoints: int, solution_metrics: Metrics):
     metrics_file.write(','.join(map(str, [
         algorithm_input.case.name,
         algorithm_input.case.size,
@@ -50,7 +49,7 @@ def read_output(case_id: str, case_type: str = 'random', solver_used='binary_seg
 
 
 def run_solution(solvers: List[Solver], cost_functions: List[CostFunction], case: Case) -> None:
-    penalization, max_amount_changepoints = select_penalization(case)
+    penalization, max_amount_changepoints = ElbowPenalizationSelector().select_penalization(case)
     for cost_function in cost_functions:
         algorithm_input = AlgorithmInput(
             case=case,
