@@ -1,9 +1,8 @@
 import math
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Tuple
 
-from cases.case import Case, ValueMetadata
+from cases.case import Case
 from cost_functions.cost_function import KernelBasedCostFunction
 from solution.algorithm_input import AlgorithmInput
 from solution.binary_segmentation import BinarySegmentation
