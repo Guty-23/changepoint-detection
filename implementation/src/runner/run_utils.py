@@ -46,7 +46,7 @@ def read_output(case_id: str, case_type: str = 'random', solver_used='binary_seg
         changepoints = list(map(int, output_file.readline().split(',')))
     metrics_df = pandas.read_csv(metrics_file_path)
     cost = float(metrics_df[metrics_df['solver'] == solver_used]['cost'].iloc[0])
-    return Solution(changepoints, Metrics(cost, solver_used))
+    return Solution(changepoints, Metrics(cost, solver_used, [], []))
 
 
 def run_solution(solvers: List[Solver], cost_functions: List[CostFunction], case: Case) -> None:

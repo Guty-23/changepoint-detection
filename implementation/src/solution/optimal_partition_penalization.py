@@ -39,4 +39,4 @@ class DynamicProgrammingPenalization(Solver):
         for end in range(1, self.length):
             self.best_prefix[end], self.attained_best[end] = min(
                 [(self.best_prefix[i] + self.cost(i, end) + self.algorithm_input.penalization, i) for i in range(end)])
-        return Solution(self.retrieve_checkpoints(), Metrics(self.best_prefix[self.length - 1], self.name))
+        return Solution(self.retrieve_checkpoints(), Metrics(self.best_prefix[self.length - 1], self.name, [], []))

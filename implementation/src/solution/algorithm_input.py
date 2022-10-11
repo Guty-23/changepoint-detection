@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from cases.case import Case
 from cost_functions.cost_function import CostFunction, GaussianCostFunction
 
-
 @dataclass
 class AlgorithmInput:
     case: Case = field(default_factory=Case, compare=False, hash=False, repr=False)
