@@ -19,19 +19,19 @@ def run_case(visualize_case: bool = False) -> None:
     Runs a single case.
     :return: None.
     """
-    case: Case = read_case('00_mean', 'random')
+    case: Case = read_case('01_mean', 'random')
 
     # cost_function: GaussianCostFunction = GaussianCostFunction()
     cost_function: KernelBasedCostFunction = KernelBasedCostFunction()
 
     algorithm_input = AlgorithmInput(case=case, cost_function=cost_function).initialize()
 
-    # solver: Solver = BinarySegmentation(algorithm_input=algorithm_input)
+    solver: Solver = BinarySegmentation(algorithm_input=algorithm_input)
     # solver: Solver = DynamicProgrammingPenalization(algorithm_input=algorithm_input)
     # solver: Solver = DynamicProgrammingPenalizationPruned(algorithm_input=algorithm_input)
     # solver: Solver = DynamicProgrammingChangepointsInState(algorithm_input=algorithm_input)
     # solver: Solver = DynamicProgrammingChangepointsInStatePruned(algorithm_input=algorithm_input)
-    solver: Solver = DynamicProgrammingDivideAndConquer(algorithm_input=algorithm_input)
+    # solver: Solver = DynamicProgrammingDivideAndConquer(algorithm_input=algorithm_input)
 
     run_solution([solver], [cost_function], case)
     solution: Solution = read_output(case.name, case.case_type, solver.name)

@@ -28,4 +28,4 @@ class DynamicProgrammingPenalizationPruned(DynamicProgrammingPenalization):
                 [(self.best_prefix[i] + self.cost(i, end) + self.algorithm_input.penalization, i) for i in candidates])
             candidates = {i for i in candidates if self.best_prefix[i] + self.cost(i, end) + self.k_term <= self.best_prefix[end]}
             candidates.add(end)
-        return Solution(self.retrieve_checkpoints(), Metrics(self.best_prefix[self.length - 1], self.name, [], []))
+        return Solution(self.retrieve_changepoints(), Metrics(self.best_prefix[self.length - 1], self.name, []))

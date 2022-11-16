@@ -32,5 +32,5 @@ class DynamicProgrammingChangepointsInStatePruned(DynamicProgrammingChangepoints
                 candidates = {i for i in candidates if
                               self.best_prefix[changepoints_used - 1][i] + self.cost(i, end) + self.k_term <= self.best_prefix[changepoints_used][end]}
                 candidates.add(end)
-        return Solution(self.retrieve_checkpoints(amount_changepoints),
-                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, self.best_prefix, self.attained_best))
+        return Solution(self.retrieve_changepoints(amount_changepoints),
+                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, self.best_prefix))

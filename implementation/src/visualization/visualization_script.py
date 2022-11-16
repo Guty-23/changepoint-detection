@@ -1,3 +1,5 @@
+from typing import List
+
 import plotly.express as px
 import pandas as pd
 
@@ -24,7 +26,7 @@ def visualize(case: Case, solution: Solution) -> None:
     fig.show()
 
 
-def visualize_elbow(case: Case, solution: Solution, guessed_checkpoints: int) -> None:
+def visualize_elbow(case: Case, solution: Solution, guessed_changepoints: int) -> None:
     """
     Visualizes a single case solution objective function for solutions
      with different amount of changepoints.
@@ -36,5 +38,19 @@ def visualize_elbow(case: Case, solution: Solution, guessed_checkpoints: int) ->
     df_rows = [[k + 1, solution.metrics.best_prefix[k][case.size]] for k in range(amount_changepoints)]
     df = pd.DataFrame(df_rows, columns=['changepoints', 'objective value'])
     fig = px.line(df, x='changepoints', y='objective value', title='Elbow - ' + solution.metrics.solver_used + ' - Case: ' + case.name)
-    fig.add_vline(guessed_checkpoints, line_width=3, line_color='red')
+    fig.add_vline(guessed_changepoints, line_width=3, line_color='red')
+    fig.show()
+
+def visualize_silhouette(case: Case, solution: Solution, median_silhouettes: List[float], guessed_changepoints: int):
+    """
+    Visualizes a single case median silhouettes for solutions
+     with different amount of changepoints.
+    :param median_silhouettes: A list with the median silhouette value for each solution of each changepoint.
+    :return: None.
+    """
+    amount_changepoints = len(median_silhouettes)
+    df_rows = [[k+1, median_silhouettes[k]] for k in range(amount_changepoints)]
+    df = pd.DataFrame(df_rows, columns=['changepoints', 'median silhouette'])
+    fig = px.line(df, x='changepoints', y='median silhouette', title='Silhouette - ' + solution.metrics.solver_used + ' - Case: ' + case.name)
+    fig.add_vline(guessed_changepoints, line_width=3, line_color='red')
     fig.show()

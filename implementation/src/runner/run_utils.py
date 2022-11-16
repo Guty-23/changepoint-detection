@@ -7,7 +7,7 @@ import pandas
 from cases.case import Case, ValueMetadata
 from cost_functions.cost_function import CostFunction
 from metrics.metrics import Metrics
-from process.penalization_selector import ElbowPenalizationSelector
+from process.penalization_selector import ElbowPenalizationSelector, SilhouettePenalizationSelector
 from solution.algorithm_input import AlgorithmInput
 from solution.solution import Solution
 from solution.solver import Solver
@@ -45,11 +45,11 @@ def read_output(case_id: str, case_type: str = 'random', solver_used='binary_seg
         changepoints = list(map(int, output_file.readline().split(',')))
     metrics_df = pandas.read_csv(metrics_file_path)
     cost = float(metrics_df[metrics_df['solver'] == solver_used]['cost'].iloc[0])
-    return Solution(changepoints, Metrics(cost, solver_used, [], []))
+    return Solution(changepoints, Metrics(cost, solver_used, []))
 
 
 def run_solution(solvers: List[Solver], cost_functions: List[CostFunction], case: Case) -> None:
-    penalization, max_amount_changepoints = ElbowPenalizationSelector().select_penalization(case)
+    penalization, max_amount_changepoints = SilhouettePenalizationSelector().select_penalization(case, True)
     for cost_function in cost_functions:
         algorithm_input = AlgorithmInput(
             case=case,

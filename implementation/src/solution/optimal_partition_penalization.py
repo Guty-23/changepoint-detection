@@ -16,7 +16,7 @@ class DynamicProgrammingPenalization(Solver):
     attained_best: List[int] = field(default_factory=list, compare=False, hash=False, repr=False)
     length: int = 0
 
-    def retrieve_checkpoints(self) -> List[int]:
+    def retrieve_changepoints(self) -> List[int]:
         """
         It calculates the changepoints by following the attained best
         from the solution to the whole signal.
@@ -39,4 +39,4 @@ class DynamicProgrammingPenalization(Solver):
         for end in range(1, self.length):
             self.best_prefix[end], self.attained_best[end] = min(
                 [(self.best_prefix[i] + self.cost(i, end) + self.algorithm_input.penalization, i) for i in range(end)])
-        return Solution(self.retrieve_checkpoints(), Metrics(self.best_prefix[self.length - 1], self.name, [], []))
+        return Solution(self.retrieve_changepoints(), Metrics(self.best_prefix[self.length - 1], self.name, []))
