@@ -49,6 +49,7 @@ def obtain_penalization_from_changepoints(case: Case, algorithm_input: Algorithm
 
 @dataclass
 class PenalizationSelector:
+    visualize: bool = False
 
     def select_penalization(self, case: Case) -> Tuple[float, int]:
         """
@@ -70,13 +71,13 @@ class ElbowPenalizationSelector(PenalizationSelector):
     """
     threshold: float = 1.01
 
-    def select_penalization(self, case: Case, visualize: bool = False) -> Tuple[float, int]:
+    def select_penalization(self, case: Case) -> Tuple[float, int]:
         """
         It runs dynamic programming suboptimal algorithm to find the solution for each amount of changepoint,
         and the uses binary search to find a suitable penalization for a binary segmentation algorithm to achieve
         such desired amount of changepoitns previously found with the elbow method.
         :param case: input case.
-        :param visualize: boolean deciding whether the 'elbow figure' should be visualized or not.
+
         :return: A tuple with a pair of suitable values for penalization and amount of changepoints.
         """
 
@@ -89,7 +90,7 @@ class ElbowPenalizationSelector(PenalizationSelector):
             if relatively_linear and not decreasing_substantially:
                 guessed_changepoints = k - 1
                 break
-        if visualize:
+        if self.visualize:
             visualize_elbow(case, solution_dynamic_programming, guessed_changepoints)
         return obtain_penalization_from_changepoints(case, algorithm_input, guessed_changepoints), guessed_changepoints
 
@@ -103,13 +104,14 @@ class SilhouettePenalizationSelector(PenalizationSelector):
     Once it has the solutions obtained for each amount of changepoints, it
     selects one that seems suitable in terms of the 'neighbouring silhouette method': https://en.wikipedia.org/wiki/Silhouette_(clustering)
     """
-    aggregation: Callable[[list[float]], float] = lambda self, values: sorted(values)[len(values) // 2]
+    aggregation_inside_range: Callable[[list[float]], float] = lambda self, values: sorted(values)[len(values) // 2]
+    aggregation_signal: Callable[[list[float]], float] = lambda self, values: sorted(values)[len(values) // 2]
 
-    def select_penalization(self, case: Case, visualize: bool = False) -> Tuple[float, int]:
+    def select_penalization(self, case: Case) -> Tuple[float, int]:
         objective_values, changepoints_values, solution_dynamic_programming, algorithm_input = obtain_solution_properties(case=case)
         amount_changepoints = len(objective_values)
         kernel = LaplaceKernel()
-        median_silhouette = []
+        aggregated_silhouette = []
         for k in range(1, amount_changepoints):
             silhouette = []
             from_indexes = [0] + list(reversed(changepoints_values[k]))
@@ -117,18 +119,32 @@ class SilhouettePenalizationSelector(PenalizationSelector):
             for range_index in range(len(from_indexes)):
                 from_index, to_index = from_indexes[range_index], to_indexes[range_index]
                 for value in case.signal[from_index:to_index]:
-                    inner_similarity = self.aggregation([kernel.similarity(value, other_value) for other_value in case.signal[from_index:to_index]])
+                    inner_similarity = self.aggregation_inside_range([kernel.similarity(value, other_value) for other_value in case.signal[from_index:to_index]])
                     prev_similarity, next_similarity = 0.0, 0.0
                     if range_index > 0:
                         prev_from, prev_to = from_indexes[range_index - 1], to_indexes[range_index - 1]
-                        prev_similarity = self.aggregation([kernel.similarity(value, other_value) for other_value in case.signal[prev_from:prev_to]])
+                        prev_similarity = self.aggregation_inside_range([kernel.similarity(value, other_value) for other_value in case.signal[prev_from:prev_to]])
                     if range_index < len(from_indexes) - 1:
                         next_from, next_to = from_indexes[range_index + 1], to_indexes[range_index + 1]
-                        next_similarity = self.aggregation([kernel.similarity(value, other_value) for other_value in case.signal[next_from:next_to]])
+                        next_similarity = self.aggregation_inside_range([kernel.similarity(value, other_value) for other_value in case.signal[next_from:next_to]])
                     neighbouring_similarity = max(prev_similarity, next_similarity)
                     silhouette.append((inner_similarity - neighbouring_similarity) / max(neighbouring_similarity, inner_similarity))
-            median_silhouette.append((sorted(silhouette)[len(silhouette) // 2], k))
-        guessed_changepoints = max(median_silhouette)[1]
-        if visualize:
-            visualize_silhouette(case, solution_dynamic_programming, [value[0] for value in median_silhouette], guessed_changepoints)
+            aggregated_silhouette.append((self.aggregation_signal(silhouette), -k, k))
+        guessed_changepoints = max(aggregated_silhouette)[2]
+        if self.visualize:
+            visualize_silhouette(case, solution_dynamic_programming, [value[0] for value in aggregated_silhouette], guessed_changepoints)
         return obtain_penalization_from_changepoints(case, algorithm_input, guessed_changepoints), guessed_changepoints
+
+    def with_aggregations(self, name_inside_range: str, name_signal: str) -> PenalizationSelector:
+        aggregations = {
+            'mean': lambda values: float(sum(values)) / float(len(values)),
+            'median': lambda values: sorted(values)[len(values) // 2],
+            'max': lambda values: float(max(values)),
+            'min': lambda values: float(min(values)),
+            'squared': lambda values: sum([float(x * x) for x in values]) / float(len(values)),
+            'p05': lambda values: sorted(values)[5 * len(values) // 100],
+            'p15': lambda values: sorted(values)[15 * len(values) // 100]
+        }
+        self.aggregation_inside_range = aggregations[name_inside_range]
+        self.aggregation_signal = aggregations[name_signal]
+        return self

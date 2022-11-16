@@ -8,7 +8,7 @@ from solution.solution import Solution
 from utils.constants import Constants
 
 
-def visualize(case: Case, solution: Solution) -> None:
+def visualize_solution(case: Case, solution: Solution) -> None:
     """
     Visualizes a single case and its solution.
     :param case: The input signal.
@@ -50,7 +50,7 @@ def visualize_silhouette(case: Case, solution: Solution, median_silhouettes: Lis
     """
     amount_changepoints = len(median_silhouettes)
     df_rows = [[k+1, median_silhouettes[k]] for k in range(amount_changepoints)]
-    df = pd.DataFrame(df_rows, columns=['changepoints', 'median silhouette'])
-    fig = px.line(df, x='changepoints', y='median silhouette', title='Silhouette - ' + solution.metrics.solver_used + ' - Case: ' + case.name)
+    df = pd.DataFrame(df_rows, columns=['changepoints', 'aggregated silhouette'])
+    fig = px.line(df, x='changepoints', y='aggregated silhouette', title='Silhouette - ' + solution.metrics.solver_used + ' - Case: ' + case.name)
     fig.add_vline(guessed_changepoints, line_width=3, line_color='red')
     fig.show()

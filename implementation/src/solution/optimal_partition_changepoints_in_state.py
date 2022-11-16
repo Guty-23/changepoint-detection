@@ -11,7 +11,10 @@ from utils.constants import Constants
 class DynamicProgrammingChangepointsInState(Solver):
     """ Implementation of Dynamic programming approach, it has
     an O(Dn^2) worst case time complexity, where D is a bound to the amount of changepoints.
-    In the worst case in which D = O(n), we have O(n^3) complexity."""
+    In the worst case in which D = O(n), we have O(n^3) complexity.
+
+    Notice that we add the penalization to the cost function so that the results among the different algorithms
+    are comparable, since adding a constant to the objective function does not change the decisions."""
 
     name: str = 'optimal_partition_changepoints_in_state'
     best_prefix: List[List[float]] = field(default_factory=list, compare=False, hash=False, repr=False)

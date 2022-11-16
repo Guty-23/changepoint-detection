@@ -15,9 +15,9 @@ class DynamicProgrammingDivideAndConquer(DynamicProgrammingChangepointsInState):
 
     def calculate_range(self, changepoints: int, begin_endpoint: int, finish_endpoint: int, begin_search: int, finish_search: int) -> None:
         middle_endpoint = (begin_endpoint + finish_endpoint) // 2
-        if middle_endpoint > 0:
-            self.best_prefix[changepoints][middle_endpoint], self.attained_best[changepoints][middle_endpoint] = min(
-                [(self.best_prefix[changepoints - 1][i] + self.cost(i, middle_endpoint), i) for i in range(begin_search, min(middle_endpoint, finish_search))])
+        self.best_prefix[changepoints][middle_endpoint], self.attained_best[changepoints][middle_endpoint] = \
+            min([(self.best_prefix[changepoints - 1][i] + self.cost(i, middle_endpoint) + self.algorithm_input.penalization, i)
+                 for i in range(begin_search, min(middle_endpoint + 1, finish_search))])
         if middle_endpoint > begin_endpoint:
             self.calculate_range(changepoints, begin_endpoint, middle_endpoint, begin_search, self.attained_best[changepoints][middle_endpoint] + 1)
         if middle_endpoint + 1 < finish_endpoint:
