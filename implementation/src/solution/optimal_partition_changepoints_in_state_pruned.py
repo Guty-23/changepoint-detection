@@ -18,8 +18,7 @@ class DynamicProgrammingChangepointsInStatePruned(DynamicProgrammingChangepoints
 
     def initialize(self) -> None:
         super(DynamicProgrammingChangepointsInStatePruned, self).initialize()
-        if 'kernel' not in self.algorithm_input.cost_function.name:
-            self.k_term = - math.log(self.length)
+        self.k_term = - 0.01 * math.log(self.length)
 
     def solve(self) -> Solution:
         self.initialize()

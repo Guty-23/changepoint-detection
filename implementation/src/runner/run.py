@@ -19,7 +19,7 @@ def run_case(visualize_case: bool = False) -> None:
     Runs a single case.
     :return: None.
     """
-    case: Case = read_case('01_mean', 'random')
+    case: Case = read_case('03_mean', 'random')
 
     # cost_function: GaussianCostFunction = GaussianCostFunction()
     cost_function: KernelBasedCostFunction = KernelBasedCostFunction()
@@ -33,7 +33,7 @@ def run_case(visualize_case: bool = False) -> None:
                    DynamicProgrammingChangepointsInStatePruned(algorithm_input=algorithm_input),
                    DynamicProgrammingDivideAndConquer(algorithm_input=algorithm_input)]
 
-    penalization_selector: PenalizationSelector = SilhouettePenalizationSelector(visualize=visualize_case).with_aggregations('min', 'p15')
+    penalization_selector: PenalizationSelector = SilhouettePenalizationSelector(visualize=visualize_case).with_aggregations('median', 'median')
 
     run_solution(solver_list, [cost_function], case, penalization_selector)
     for solver in solver_list:
