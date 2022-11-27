@@ -11,14 +11,17 @@ from utils.constants import Constants
 class DynamicProgrammingChangepointsInState(Solver):
     """ Implementation of Dynamic programming approach, it has
     an O(Dn^2) worst case time complexity, where D is a bound to the amount of changepoints.
-    In the worst case in which D = O(n), we have O(n^3) complexity."""
+    In the worst case in which D = O(n), we have O(n^3) complexity.
+
+    Notice that we add the penalization to the cost function so that the results among the different algorithms
+    are comparable, since adding a constant to the objective function does not change the decisions."""
 
     name: str = 'optimal_partition_changepoints_in_state'
     best_prefix: List[List[float]] = field(default_factory=list, compare=False, hash=False, repr=False)
     attained_best: List[List[int]] = field(default_factory=list, compare=False, hash=False, repr=False)
     length: int = 0
 
-    def retrieve_checkpoints(self, changepoints_used: int) -> List[int]:
+    def retrieve_changepoints(self, changepoints_used: int) -> List[int]:
         """
         It calculates the changepoints by following the attained best
         from the solution to the whole signal.
@@ -46,4 +49,5 @@ class DynamicProgrammingChangepointsInState(Solver):
             for end in range(1, self.length):
                 self.best_prefix[changepoints_used][end], self.attained_best[changepoints_used][end] = min(
                     [(self.best_prefix[changepoints_used - 1][i] + self.cost(i, end) + self.algorithm_input.penalization, i) for i in range(end)])
-        return Solution(self.retrieve_checkpoints(amount_changepoints), Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name))
+        return Solution(self.retrieve_changepoints(amount_changepoints),
+                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, self.best_prefix))

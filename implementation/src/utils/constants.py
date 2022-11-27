@@ -20,6 +20,7 @@ class Constants:
     window: int = 20
     epsilon: float = 1e-6
     infinity: float = 1e12
+    changepoints_bound: int = 250
     project_root_path: str = os.path.dirname(os.path.abspath(__file__)) + '/../../'
     random_path: str = project_root_path + 'resources/cases/random/'
     real_path: str = project_root_path + 'resources/cases/real/'
