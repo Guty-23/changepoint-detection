@@ -19,8 +19,7 @@ def run_case(visualize_case: bool = False) -> None:
     Runs a single case.
     :return: None.
     """
-    case: Case = read_case('03_mean', 'random')
-
+    case: Case = read_case('01_mean', 'random')
     # cost_function: GaussianCostFunction = GaussianCostFunction()
     cost_function: KernelBasedCostFunction = KernelBasedCostFunction()
 
