@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass, field
 from typing import List
 
@@ -35,8 +36,10 @@ class DynamicProgrammingPenalization(Solver):
         self.attained_best = [-1 for _ in range(self.length)]
 
     def solve(self) -> Solution:
+        start_time = time.perf_counter()
         self.initialize()
         for end in range(1, self.length):
             self.best_prefix[end], self.attained_best[end] = min(
                 [(self.best_prefix[i] + self.cost(i, end) + (self.algorithm_input.penalization if i > 0 else 0.0), i) for i in range(end)])
-        return Solution(self.retrieve_changepoints(), Metrics(self.best_prefix[self.length - 1], self.name, []))
+        end_time = time.perf_counter()
+        return Solution(self.retrieve_changepoints(), Metrics(self.best_prefix[self.length - 1], self.name, end_time - start_time, []))

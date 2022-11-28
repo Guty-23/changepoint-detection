@@ -27,4 +27,5 @@ class Constants:
     output_path: str = project_root_path + 'output/cases/'
     date_format: str = '%Y-%m-%d %H:%M'
     no_date: datetime.datetime = datetime.datetime(year=1970, month=1, day=1)
-    metrics_columns: str = ('name', 'size', 'cost_function', 'solver', 'changepoints', 'cost')
+    no_data: datetime.datetime = -1
+    metrics_columns: str = ('name', 'size', 'cost_function', 'solver', 'changepoints', 'cost', 'execution_time', 'right_changepoints', 'wrong_changepoints')

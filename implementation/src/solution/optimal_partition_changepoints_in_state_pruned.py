@@ -1,4 +1,5 @@
 import math
+import time
 from dataclasses import dataclass
 
 from metrics.metrics import Metrics
@@ -21,6 +22,7 @@ class DynamicProgrammingChangepointsInStatePruned(DynamicProgrammingChangepoints
         self.k_term = - 0.01 * math.log(self.length)
 
     def solve(self) -> Solution:
+        start_time = time.perf_counter()
         self.initialize()
         amount_changepoints = self.algorithm_input.max_amount_changepoints
         for changepoints_used in range(1, amount_changepoints + 1):
@@ -31,5 +33,6 @@ class DynamicProgrammingChangepointsInStatePruned(DynamicProgrammingChangepoints
                 candidates = {i for i in candidates if
                               self.best_prefix[changepoints_used - 1][i] + self.cost(i, end) + self.k_term <= self.best_prefix[changepoints_used][end]}
                 candidates.add(end)
+        end_time = time.perf_counter()
         return Solution(self.retrieve_changepoints(amount_changepoints),
-                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, self.best_prefix))
+                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, end_time - start_time, self.best_prefix))

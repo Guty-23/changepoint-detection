@@ -31,7 +31,7 @@ def obtain_solution_properties(case: Case, account_penalization: bool) -> Tuple[
     amount_changepoints = len(solution_dynamic_programming.changepoints)
     penalization = algorithm_input.penalization if not account_penalization else 0.0
     objective_values = [solution_dynamic_programming.metrics.best_prefix[k][case.size] - k * penalization for k in range(amount_changepoints)]
-    print(objective_values)
+    # print(objective_values)
     changepoints_values = [greedy_solver_dynamic_programming.retrieve_changepoints(k) for k in range(amount_changepoints)]
     return objective_values, changepoints_values, solution_dynamic_programming, algorithm_input
 
@@ -47,12 +47,12 @@ def obtain_penalization_from_changepoints(case: Case, algorithm_input: Algorithm
             lower_penalization = penalization
         else:
             upper_penalization = penalization
-    return upper_penalization
+    return lower_penalization
 
 
 def apply_elbow(changepoints_to_analyze: List[int], objective_values: List[float], threshold: float):
     guessed_changepoints = changepoints_to_analyze[0]
-    print([objective_values[k - 1] for k in changepoints_to_analyze])
+    # print([objective_values[k - 1] for k in changepoints_to_analyze])
     for k in range(1, len(changepoints_to_analyze) - 1):
         prev_i = changepoints_to_analyze[k - 1] - 1
         actual_i = changepoints_to_analyze[k] - 1
@@ -151,9 +151,9 @@ class SilhouettePenalizationSelector(PenalizationSelector):
         silhouette_candidates = [(value[0], objective_values[value[1]], value[1]) for value in aggregated_silhouette]
         max_silhouette = max([value[0] for value in silhouette_candidates])
         min_objective_value = min([value[1] for value in silhouette_candidates])
-        print(sorted(
-            [((value[0] / max_silhouette) * (min_objective_value / value[1]) * math.exp(-value[2] / Constants.changepoints_bound), value[2]) for value in
-             silhouette_candidates], reverse=True))
+        # print(sorted(
+        #     [((value[0] / max_silhouette) * (min_objective_value / value[1]) * math.exp(-value[2] / Constants.changepoints_bound), value[2]) for value in
+        #      silhouette_candidates], reverse=True))
         guessed_changepoints = \
         max([((value[0] / max_silhouette) * (min_objective_value / value[1]) * math.exp(-value[2] / Constants.changepoints_bound), value[2]) for value in
              silhouette_candidates])[1]
