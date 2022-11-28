@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass
 from typing import Tuple, List
 
@@ -32,5 +33,7 @@ class BinarySegmentation(Solver):
         return changepoints, total_cost
 
     def solve(self) -> Solution:
+        start_time = time.perf_counter()
         changepoints, cost = self.solve_range(0, len(self.algorithm_input.case.signal), 0.0, [])
-        return Solution(changepoints, Metrics(cost, self.name, []))
+        end_time = time.perf_counter()
+        return Solution(changepoints, Metrics(cost, self.name, end_time - start_time, []))

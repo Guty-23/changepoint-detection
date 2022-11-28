@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass
 
 from metrics.metrics import Metrics
@@ -24,9 +25,11 @@ class DynamicProgrammingDivideAndConquer(DynamicProgrammingChangepointsInState):
             self.calculate_range(changepoints, middle_endpoint + 1, finish_endpoint, self.attained_best[changepoints][middle_endpoint], finish_search)
 
     def solve(self) -> Solution:
+        start_time = time.perf_counter()
         self.initialize()
         amount_changepoints = self.algorithm_input.max_amount_changepoints
         for changepoint_used in range(1, amount_changepoints + 1):
             self.calculate_range(changepoint_used, 0, self.length, 0, self.length)
+        end_time = time.perf_counter()
         return Solution(self.retrieve_changepoints(amount_changepoints),
-                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, self.best_prefix))
+                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, end_time - start_time, self.best_prefix))

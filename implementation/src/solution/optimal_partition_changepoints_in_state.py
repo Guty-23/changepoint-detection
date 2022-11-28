@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass, field
 from typing import List
 
@@ -43,11 +44,13 @@ class DynamicProgrammingChangepointsInState(Solver):
         self.attained_best[0] = [-1 for end in range(self.length)]
 
     def solve(self) -> Solution:
+        start_time = time.perf_counter()
         self.initialize()
         amount_changepoints = self.algorithm_input.max_amount_changepoints
         for changepoints_used in range(1, amount_changepoints + 1):
             for end in range(1, self.length):
                 self.best_prefix[changepoints_used][end], self.attained_best[changepoints_used][end] = min(
                     [(self.best_prefix[changepoints_used - 1][i] + self.cost(i, end) + self.algorithm_input.penalization, i) for i in range(end)])
+        end_time = time.perf_counter()
         return Solution(self.retrieve_changepoints(amount_changepoints),
-                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, self.best_prefix))
+                        Metrics(self.best_prefix[amount_changepoints][self.length - 1], self.name, end_time - start_time, self.best_prefix))

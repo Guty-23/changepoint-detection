@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 
 import plotly.express as px
 import pandas as pd
@@ -8,7 +8,7 @@ from solution.solution import Solution
 from utils.constants import Constants
 
 
-def visualize_solution(case: Case, solution: Solution) -> None:
+def visualize_solution(case: Case, solution: Solution, correct_changepoints: Set[int]) -> None:
     """
     Visualizes a single case and its solution.
     :param case: The input signal.
@@ -22,7 +22,7 @@ def visualize_solution(case: Case, solution: Solution) -> None:
     df = pd.DataFrame(df_rows, columns=[label_x, label_y])
     fig = px.line(df, x=label_x, y=label_y, title='Algorithm: ' + solution.metrics.solver_used + ' - Case: ' + case.name)
     for changepoint in solution.changepoints:
-        fig.add_vline(case.metadata[changepoint].field_from_label(label_x), line_width=3, line_color='red')
+        fig.add_vline(case.metadata[changepoint].field_from_label(label_x), line_width=3, line_color='magenta' if changepoint in correct_changepoints else 'red')
     fig.show()
 
 
