@@ -19,7 +19,8 @@ class DynamicProgrammingChangepointsInStatePruned(DynamicProgrammingChangepoints
 
     def initialize(self) -> None:
         super(DynamicProgrammingChangepointsInStatePruned, self).initialize()
-        self.k_term = - 0.01 * math.log(self.length)
+        if 'gaussian' in self.algorithm_input.cost_function.name:
+            self.k_term = - math.log(self.length)
 
     def solve(self) -> Solution:
         start_time = time.perf_counter()

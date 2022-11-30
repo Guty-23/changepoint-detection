@@ -25,7 +25,7 @@ def write_metrics(algorithm_input: AlgorithmInput, solver: Solver, metrics_file:
         amount_changepoints,
         solution_metrics.cost,
         round(solution_metrics.execution_time, 9),
-        solution_metrics.corect_changepoints,
+        solution_metrics.correct_changepoints,
         solution_metrics.incorrect_changepoints
     ]
     metrics_file.write(','.join(map(str, metrics_list)) + '\n')
@@ -75,9 +75,9 @@ def run_solution(solvers: List[Solver], cost_functions: List[CostFunction], case
                     if case.case_type == 'random':
                         with open(Constants.random_path + 'solutions/' + case.name + '.out', 'r') as real_changepoitns_file:
                             real_changepoints = list(map(int, real_changepoitns_file.readline().replace('\n', '').split(',')))
-                            correct_changepoints = metrics.changepoint_classifier.real_changepoints(real_changepoints, solution.changepoints)
-                            solution.metrics.corect_changepoints = len(correct_changepoints)
-                            solution.metrics.incorrect_changepoints = len(solution.changepoints) - len(correct_changepoints)
+                            real_right_ch, found_right_ch = metrics.changepoint_classifier.real_changepoints(real_changepoints, solution.changepoints)
+                            solution.metrics.correct_changepoints = len(real_right_ch)
+                            solution.metrics.incorrect_changepoints = len(solution.changepoints) - len(found_right_ch)
                     write_metrics(algorithm_input, solver, metrics_file, len(solution.changepoints), solution.metrics)
                     with open(path + algorithm_input.case.name + '_' + solver.name + '.out', 'w') as output_file:
                         output_file.write(','.join(list(map(str, sorted(solution.changepoints)))) + '\n')

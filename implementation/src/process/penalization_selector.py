@@ -47,7 +47,7 @@ def obtain_penalization_from_changepoints(case: Case, algorithm_input: Algorithm
             lower_penalization = penalization
         else:
             upper_penalization = penalization
-    return lower_penalization
+    return (lower_penalization + upper_penalization) / 2.0
 
 
 def apply_elbow(changepoints_to_analyze: List[int], objective_values: List[float], threshold: float):
@@ -60,7 +60,7 @@ def apply_elbow(changepoints_to_analyze: List[int], objective_values: List[float
         relatively_linear = float(objective_values[prev_i] - objective_values[actual_i]) < float(
             objective_values[actual_i] - objective_values[next_i]) * threshold
         decreasing_substantially = objective_values[prev_i] - objective_values[actual_i] > objective_values[changepoints_to_analyze[0]] * (threshold - 1.0)
-        print(k, relatively_linear, decreasing_substantially)
+        # print(k, relatively_linear, decreasing_substantially)
         if decreasing_substantially:
             guessed_changepoints = changepoints_to_analyze[k - 1]
         if relatively_linear and not decreasing_substantially:
@@ -151,9 +151,9 @@ class SilhouettePenalizationSelector(PenalizationSelector):
         silhouette_candidates = [(value[0], objective_values[value[1]], value[1]) for value in aggregated_silhouette]
         max_silhouette = max([value[0] for value in silhouette_candidates])
         min_objective_value = min([value[1] for value in silhouette_candidates])
-        # print(sorted(
-        #     [((value[0] / max_silhouette) * (min_objective_value / value[1]) * math.exp(-value[2] / Constants.changepoints_bound), value[2]) for value in
-        #      silhouette_candidates], reverse=True))
+        print(sorted(
+            [((value[0] / max_silhouette) * (min_objective_value / value[1]) * math.exp(-value[2] / Constants.changepoints_bound), value[2]) for value in
+             silhouette_candidates], reverse=True))
         guessed_changepoints = \
         max([((value[0] / max_silhouette) * (min_objective_value / value[1]) * math.exp(-value[2] / Constants.changepoints_bound), value[2]) for value in
              silhouette_candidates])[1]
@@ -162,13 +162,19 @@ class SilhouettePenalizationSelector(PenalizationSelector):
         return obtain_penalization_from_changepoints(case, algorithm_input, guessed_changepoints), guessed_changepoints
 
     def with_aggregations(self, name_inside_range: str, name_signal: str) -> PenalizationSelector:
-        aggregations = {'mean': lambda values: float(sum(values)) / float(len(values)), 'median': lambda values: sorted(values)[len(values) // 2],
-                        'max': lambda values: float(max(values)), 'min': lambda values: float(min(values)),
+        aggregations = {'mean': lambda values: float(sum(values)) / float(len(values)),
+                        'median': lambda values: sorted(values)[len(values) // 2],
+                        'max': lambda values: float(max(values)),
+                        'min': lambda values: float(min(values)),
                         'squared': lambda values: sum([float(x * x) for x in values]) / float(len(values)),
-                        'p01': lambda values: sorted(values)[1 * len(values) // 100], 'p05': lambda values: sorted(values)[5 * len(values) // 100],
-                        'p10': lambda values: sorted(values)[10 * len(values) // 100], 'p15': lambda values: sorted(values)[15 * len(values) // 100],
-                        'p25': lambda values: sorted(values)[25 * len(values) // 100], 'p35': lambda values: sorted(values)[35 * len(values) // 100],
-                        'p75': lambda values: sorted(values)[75 * len(values) // 100], 'p95': lambda values: sorted(values)[95 * len(values) // 100]}
+                        'p01': lambda values: sorted(values)[1 * len(values) // 100],
+                        'p05': lambda values: sorted(values)[5 * len(values) // 100],
+                        'p10': lambda values: sorted(values)[10 * len(values) // 100],
+                        'p15': lambda values: sorted(values)[15 * len(values) // 100],
+                        'p25': lambda values: sorted(values)[25 * len(values) // 100],
+                        'p35': lambda values: sorted(values)[35 * len(values) // 100],
+                        'p75': lambda values: sorted(values)[75 * len(values) // 100],
+                        'p95': lambda values: sorted(values)[95 * len(values) // 100]}
         self.aggregation_inside_range = aggregations[name_inside_range]
         self.aggregation_signal = aggregations[name_signal]
         return self

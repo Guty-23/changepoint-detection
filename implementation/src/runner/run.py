@@ -21,7 +21,7 @@ def run_case(visualize_case: bool = False) -> None:
     Runs a single case.
     :return: None.
     """
-    case: Case = read_case('01_mean', 'random')
+    case: Case = read_case('02_dependant', 'random')
     # cost_function: CostFunction = GaussianCostFunction()
     cost_function: CostFunction = KernelBasedCostFunction()
     # cost_function: CostFunction = ExponentialCostFunction()
@@ -43,7 +43,7 @@ def run_case(visualize_case: bool = False) -> None:
         with open(Constants.random_path + 'solutions/' + case.name + '.out', 'r') as real_changepoitns_file:
             real_changepoints = list(map(int, real_changepoitns_file.readline().replace('\n', '').split(',')))
             real_correct_changepoints, found_correct_changepoints = metrics.changepoint_classifier.real_changepoints(real_changepoints, solution.changepoints)
-            print(solver.name.ljust(50), len(solution.changepoints), solution.metrics.cost)
+            print(solver.name.ljust(50), len(solution.changepoints), solution.metrics.cost, len(found_correct_changepoints))
             if visualize_case:
                 visualize_solution(case, solution, found_correct_changepoints)
 
