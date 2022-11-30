@@ -18,9 +18,13 @@ def create_length_between_change_points(n: int, m: int, rng: np.random.RandomSta
     :param rng: Fixed random number generator.
     :return: Two lists of size m indicating the space between changepoints and the inner changepoints.
     """
-    change_points = sorted([0] + list(rng.choice(n, m, replace=False)) + [n])
-    return list(np.diff(change_points)), \
-           change_points[1:-1]
+    min_diff, changepoint_diff = 0, []
+    while min_diff < Constants.window:
+        change_points = sorted([0] + list(rng.choice(n, m, replace=False)) + [n])
+        changepoint_diff = list(np.diff(change_points))
+        min_diff = min(changepoint_diff)
+        print(min_diff)
+    return changepoint_diff, change_points[1:-1]
 
 
 def gen_signal_change_mean(parameters: CaseParameters) -> Tuple[List[float], List[int]]:

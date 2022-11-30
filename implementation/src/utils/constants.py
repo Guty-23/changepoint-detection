@@ -17,7 +17,7 @@ class Constants:
     min_days: int = 2
     minutes_in_a_day: int = 24 * 60
     kernel_bandwidth: float = 1e3
-    window: int = 20
+    window: int = 30
     epsilon: float = 1e-6
     infinity: float = 1e12
     changepoints_bound: int = 250

@@ -18,7 +18,8 @@ class DynamicProgrammingPenalizationPruned(DynamicProgrammingPenalization):
 
     def initialize(self) -> set[int]:
         super(DynamicProgrammingPenalizationPruned, self).initialize()
-        self.k_term = - 0.01 * math.log(self.length)
+        if 'gaussian' in self.algorithm_input.cost_function.name:
+            self.k_term = - math.log(self.length)
         return {0}
 
     def solve(self) -> Solution:
