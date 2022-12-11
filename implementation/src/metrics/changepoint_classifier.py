@@ -1,9 +1,9 @@
-from typing import List, Set
+from typing import List, Set, Tuple
 
 THRESHOLD = 10
 
 
-def real_changepoints(real_changepoints: List[int], found_changepoints: List[int]) -> Set[int]:
+def real_changepoints(real_changepoints: List[int], found_changepoints: List[int]) -> Tuple[Set[int], Set[int]]:
     real_correctly_found = set()
     found_correctly = set()
     for changepoint in found_changepoints:
@@ -12,4 +12,4 @@ def real_changepoints(real_changepoints: List[int], found_changepoints: List[int
                 real_correctly_found.add(real_changepoint)
                 found_correctly.add(changepoint)
                 break
-    return real_correctly_found, found_correctly
+    return set(real_changepoints).difference(real_correctly_found), found_correctly
