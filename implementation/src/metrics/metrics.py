@@ -12,3 +12,4 @@ class Metrics:
     best_prefix: List[List[float]]
     correct_changepoints: int = Constants.no_data
     incorrect_changepoints: int = Constants.no_data
+    not_found_changepoints: int = Constants.no_data

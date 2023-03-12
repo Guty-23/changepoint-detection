@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Tuple, List, Callable
 
 from cases.case import Case
-from cost_functions.cost_function import KernelBasedCostFunction
+from cost_functions.cost_function import KernelBasedCostFunction, GaussianCostFunction, CostFunction
 from cost_functions.kernels import LaplaceKernel
 from solution.algorithm_input import AlgorithmInput
 from solution.binary_segmentation import BinarySegmentation
@@ -15,16 +15,17 @@ from utils.constants import Constants
 from visualization.visualization_script import visualize_elbow, visualize_silhouette
 
 
-def obtain_solution_properties(case: Case, account_penalization: bool) -> Tuple[List[float], List[List[int]], Solution, AlgorithmInput]:
+def obtain_solution_properties(case: Case, cost_function: CostFunction = KernelBasedCostFunction(), account_penalization: bool = True) -> \
+        Tuple[List[float], List[List[int]], Solution, AlgorithmInput]:
     """
     It obtains the solution for different amount of changepoints.
     :param case: case to solve.
+    :param cost_function: cost function to be used in fast solver.
     :param account_penalization: boolean deciding whether penalization for each changepoint should count in the objective
     :return: The list of objective values, and changepoints obtained for each specified amount and extra values for simplicity of code.
     """
     changepoints_bound: int = min(Constants.changepoints_bound, math.floor(math.sqrt(case.size)))
-    default_cost_function: KernelBasedCostFunction = KernelBasedCostFunction()
-    algorithm_input = AlgorithmInput(case=case, cost_function=default_cost_function, max_amount_changepoints=changepoints_bound)
+    algorithm_input = AlgorithmInput(case=case, cost_function=cost_function, max_amount_changepoints=changepoints_bound)
     algorithm_input.initialize()
     greedy_solver_dynamic_programming: DynamicProgrammingChangepointsInState = DynamicProgrammingDivideAndConquer(algorithm_input=algorithm_input)
     solution_dynamic_programming: Solution = greedy_solver_dynamic_programming.solve()
@@ -73,11 +74,12 @@ class PenalizationSelector:
     visualize: bool = False
     threshold: float = 1.01
 
-    def select_penalization(self, case: Case) -> Tuple[float, int]:
+    def select_penalization(self, case: Case, cost_function: CostFunction) -> Tuple[float, int]:
         """
         Selects reasonable penalization values and maximum amount of
         changepoints for a given case.
         :param case: case to solve.
+        :param cost_function: cost function to be used.
         :return: a pair with the penalization and max amount of changepoints.
         """
 
@@ -92,17 +94,20 @@ class ElbowPenalizationSelector(PenalizationSelector):
     selects one that seems suitable in terms of the 'elbow method': https://en.wikipedia.org/wiki/Elbow_method_(clustering)
     """
 
-    def select_penalization(self, case: Case) -> Tuple[float, int]:
+    def select_penalization(self, case: Case, cost_function: CostFunction) -> Tuple[float, int]:
         """
         It runs dynamic programming suboptimal algorithm to find the solution for each amount of changepoint,
         and the uses binary search to find a suitable penalization for a binary segmentation algorithm to achieve
         such desired amount of changepoitns previously found with the elbow method.
         :param case: input case.
-
+        :param cost_function: cost function to be used.
         :return: A tuple with a pair of suitable values for penalization and amount of changepoints.
         """
 
-        objective_values, changepoints_values, solution_dynamic_programming, algorithm_input = obtain_solution_properties(case=case, account_penalization=True)
+        objective_values, changepoints_values, solution_dynamic_programming, algorithm_input = obtain_solution_properties(
+            case=case,
+            cost_function=cost_function,
+            account_penalization=True)
         amount_changepoints = len(objective_values)
         guessed_changepoints = apply_elbow(list(range(amount_changepoints)), objective_values, self.threshold)
         if self.visualize:
@@ -122,8 +127,11 @@ class SilhouettePenalizationSelector(PenalizationSelector):
     aggregation_inside_range: Callable[[list[float]], float] = lambda self, values: sorted(values)[len(values) // 2]
     aggregation_signal: Callable[[list[float]], float] = lambda self, values: sorted(values)[len(values) // 2]
 
-    def select_penalization(self, case: Case) -> Tuple[float, int]:
-        objective_values, changepoints_values, solution_dynamic_programming, algorithm_input = obtain_solution_properties(case=case, account_penalization=False)
+    def select_penalization(self, case: Case, cost_function: CostFunction) -> Tuple[float, int]:
+        objective_values, changepoints_values, solution_dynamic_programming, algorithm_input = obtain_solution_properties(
+            case=case,
+            cost_function=cost_function,
+            account_penalization=False)
         amount_changepoints = len(objective_values)
         kernel = LaplaceKernel()
         aggregated_silhouette = []
@@ -148,33 +156,27 @@ class SilhouettePenalizationSelector(PenalizationSelector):
                     neighbouring_similarity = max(prev_similarity, next_similarity)
                     silhouette.append((inner_similarity - neighbouring_similarity) / max(neighbouring_similarity, inner_similarity))
             aggregated_silhouette.append((self.aggregation_signal(silhouette), k))
-        silhouette_candidates = [(value[0], objective_values[value[1]], value[1]) for value in aggregated_silhouette]
-        max_silhouette = max([value[0] for value in silhouette_candidates])
-        min_objective_value = min([value[1] for value in silhouette_candidates])
+        silhouette_candidates = [(silh, objective_values[k], k) for silh, k in aggregated_silhouette]
+        max_silhouette = max([silh for silh, _, _ in silhouette_candidates])
+        min_objective_value = min([obj for _, obj, _ in silhouette_candidates])
         print(sorted(
-            [((value[0] / max_silhouette) * (min_objective_value / value[1]) * math.exp(-value[2] / Constants.changepoints_bound), value[2]) for value in
-             silhouette_candidates], reverse=True))
+            [((silh / max_silhouette) * (min_objective_value / obj) * math.exp(-k / Constants.changepoints_bound), k)
+             for silh, obj, k in silhouette_candidates], reverse=True))
         guessed_changepoints = \
-        max([((value[0] / max_silhouette) * (min_objective_value / value[1]) * math.exp(-value[2] / Constants.changepoints_bound), value[2]) for value in
-             silhouette_candidates])[1]
+            max([((silh / max_silhouette) * (min_objective_value / obj) * math.exp(-k / Constants.changepoints_bound), k)
+                 for silh, obj, k in silhouette_candidates])[1]
         if self.visualize:
             visualize_silhouette(case, solution_dynamic_programming, [value[0] for value in aggregated_silhouette], guessed_changepoints)
         return obtain_penalization_from_changepoints(case, algorithm_input, guessed_changepoints), guessed_changepoints
 
     def with_aggregations(self, name_inside_range: str, name_signal: str) -> PenalizationSelector:
-        aggregations = {'mean': lambda values: float(sum(values)) / float(len(values)),
-                        'median': lambda values: sorted(values)[len(values) // 2],
-                        'max': lambda values: float(max(values)),
-                        'min': lambda values: float(min(values)),
+        aggregations = {'mean': lambda values: float(sum(values)) / float(len(values)), 'median': lambda values: sorted(values)[len(values) // 2],
+                        'max': lambda values: float(max(values)), 'min': lambda values: float(min(values)),
                         'squared': lambda values: sum([float(x * x) for x in values]) / float(len(values)),
-                        'p01': lambda values: sorted(values)[1 * len(values) // 100],
-                        'p05': lambda values: sorted(values)[5 * len(values) // 100],
-                        'p10': lambda values: sorted(values)[10 * len(values) // 100],
-                        'p15': lambda values: sorted(values)[15 * len(values) // 100],
-                        'p25': lambda values: sorted(values)[25 * len(values) // 100],
-                        'p35': lambda values: sorted(values)[35 * len(values) // 100],
-                        'p75': lambda values: sorted(values)[75 * len(values) // 100],
-                        'p95': lambda values: sorted(values)[95 * len(values) // 100]}
+                        'p01': lambda values: sorted(values)[1 * len(values) // 100], 'p05': lambda values: sorted(values)[5 * len(values) // 100],
+                        'p10': lambda values: sorted(values)[10 * len(values) // 100], 'p15': lambda values: sorted(values)[15 * len(values) // 100],
+                        'p25': lambda values: sorted(values)[25 * len(values) // 100], 'p35': lambda values: sorted(values)[35 * len(values) // 100],
+                        'p75': lambda values: sorted(values)[75 * len(values) // 100], 'p95': lambda values: sorted(values)[95 * len(values) // 100]}
         self.aggregation_inside_range = aggregations[name_inside_range]
         self.aggregation_signal = aggregations[name_signal]
         return self

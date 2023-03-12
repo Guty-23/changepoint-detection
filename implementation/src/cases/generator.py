@@ -23,7 +23,6 @@ def create_length_between_change_points(n: int, m: int, rng: np.random.RandomSta
         change_points = sorted([0] + list(rng.choice(n, m, replace=False)) + [n])
         changepoint_diff = list(np.diff(change_points))
         min_diff = min(changepoint_diff)
-        print(min_diff)
     return changepoint_diff, change_points[1:-1]
 
 
