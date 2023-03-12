@@ -1,7 +1,7 @@
 import metrics.changepoint_classifier
 from cases.case import Case
 from cost_functions.cost_function import KernelBasedCostFunction, GaussianCostFunction, ExponentialCostFunction, CostFunction
-from cost_functions.kernels import LaplaceKernel
+from cost_functions.kernels import LaplaceKernel, GaussianKernel
 from process.penalization_selector import PenalizationSelector, SilhouettePenalizationSelector
 from runner.run_utils import read_case, run_solution, read_output
 from solution.algorithm_input import AlgorithmInput
@@ -23,7 +23,8 @@ def run_case(visualize_case: bool = False) -> None:
     """
     case: Case = read_case('00_mean', 'random')
     # cost_function: CostFunction = GaussianCostFunction()
-    cost_function: CostFunction = KernelBasedCostFunction()
+    cost_function: CostFunction = KernelBasedCostFunction('laplace_kernel')
+    # cost_function: CostFunction = KernelBasedCostFunction('gaussian_kernel')
     # cost_function: CostFunction = ExponentialCostFunction()
 
     algorithm_input = AlgorithmInput(case=case, cost_function=cost_function).initialize()
@@ -35,7 +36,7 @@ def run_case(visualize_case: bool = False) -> None:
                    DynamicProgrammingChangepointsInStatePruned(algorithm_input=algorithm_input),
                    DynamicProgrammingDivideAndConquer(algorithm_input=algorithm_input)]
 
-    penalization_selector: PenalizationSelector = SilhouettePenalizationSelector(visualize=visualize_case).with_aggregations('min', 'median')
+    penalization_selector: PenalizationSelector = SilhouettePenalizationSelector(visualize=visualize_case).with_aggregations('median', 'median')
 
     run_solution(solver_list, [cost_function], case, penalization_selector)
     for solver in solver_list:

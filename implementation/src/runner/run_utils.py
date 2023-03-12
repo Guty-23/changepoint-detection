@@ -26,7 +26,8 @@ def write_metrics(algorithm_input: AlgorithmInput, solver: Solver, metrics_file:
         solution_metrics.cost,
         round(solution_metrics.execution_time, 9),
         solution_metrics.correct_changepoints,
-        solution_metrics.incorrect_changepoints
+        solution_metrics.incorrect_changepoints,
+        solution_metrics.not_found_changepoints
     ]
     metrics_file.write(','.join(map(str, metrics_list)) + '\n')
 
@@ -48,6 +49,8 @@ def read_output(case_id: str, case_type: str = 'random', solver_used='binary_seg
     solution_file_path = '/'.join([Constants.output_path, case_type, case_id + '_' + solver_used + '.out'])
     metrics_file_path = '/'.join([Constants.output_path, case_type, case_id + '.metrics'])
     with open(solution_file_path, 'r') as output_file:
+        if os.stat(solution_file_path).st_size == 1:
+            return Solution([], Metrics(0, solver_used, 0.0, []))
         changepoints = list(map(int, output_file.readline().split(',')))
     metrics_df = pandas.read_csv(metrics_file_path)
     cost = float(metrics_df[metrics_df['solver'] == solver_used]['cost'].iloc[0])
@@ -60,8 +63,8 @@ def solve(solver: Solver) -> Tuple[Solver, Solution]:
 
 
 def run_solution(solvers: List[Solver], cost_functions: List[CostFunction], case: Case, penalization_selector: PenalizationSelector) -> None:
-    penalization, max_amount_changepoints = penalization_selector.select_penalization(case)
     for cost_function in cost_functions:
+        penalization, max_amount_changepoints = penalization_selector.select_penalization(case, cost_function)
         algorithm_input = AlgorithmInput(case=case, cost_function=cost_function, penalization=penalization, max_amount_changepoints=max_amount_changepoints)
         for solver in solvers:
             solver.set_input(algorithm_input)
@@ -75,9 +78,10 @@ def run_solution(solvers: List[Solver], cost_functions: List[CostFunction], case
                     if case.case_type == 'random':
                         with open(Constants.random_path + 'solutions/' + case.name + '.out', 'r') as real_changepoitns_file:
                             real_changepoints = list(map(int, real_changepoitns_file.readline().replace('\n', '').split(',')))
-                            real_right_ch, found_right_ch = metrics.changepoint_classifier.real_changepoints(real_changepoints, solution.changepoints)
-                            solution.metrics.correct_changepoints = len(real_right_ch)
+                            real_not_found_ch, found_right_ch = metrics.changepoint_classifier.real_changepoints(real_changepoints, solution.changepoints)
+                            solution.metrics.correct_changepoints = len(found_right_ch)
                             solution.metrics.incorrect_changepoints = len(solution.changepoints) - len(found_right_ch)
+                            solution.metrics.not_found_changepoints = len(real_not_found_ch)
                     write_metrics(algorithm_input, solver, metrics_file, len(solution.changepoints), solution.metrics)
                     with open(path + algorithm_input.case.name + '_' + solver.name + '.out', 'w') as output_file:
                         output_file.write(','.join(list(map(str, sorted(solution.changepoints)))) + '\n')
